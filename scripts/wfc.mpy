@@ -60,12 +60,16 @@ def dispQuickLog(log="mis"):
 
   if log.lower() == "mis":
     logFile = 'grep -vE "HTTP|BINKP|HostName|Blocked|Connect|EVENT" `ls -1hrt '+LOGDIR+'/mis.*.log|tail -1`|tail -n5|head -n4|cut -c -76'
+    logFileStatus = ' |14MIS.LOG|07 '
   elif log.lower() == "mutil":
     logFile = 'tail -n4 '+LOGDIR+'/mutil.latest.log|cut -c -76'
+    logFileStatus = ' |14MUTIL.LOG|07 '
   else:
     logFile = 'tail -n4 '+LOGDIR+'/node'+log+'.log|cut -c -76'
+    logFileStatus = ' |14NODE'+log+'.LOG|07 '
 
-  #QUICKLOG = os.popen('grep -aih "logged in$" '+LOGDIR+'/node*.log|sort|tail -n4').read()
+  gotoxy(20,18); write(logFileStatus)
+
   SY = 19
   OS = 0
   #lines = os.popen('grep -aih "logged in$" '+LOGDIR+'/node*.log|sort|tail -n4').readlines()
