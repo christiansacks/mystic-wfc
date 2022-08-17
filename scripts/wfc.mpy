@@ -72,7 +72,6 @@ def dispQuickLog(log="mis"):
 
   SY = 19
   OS = 0
-  #lines = os.popen('grep -aih "logged in$" '+LOGDIR+'/node*.log|sort|tail -n4').readlines()
   lines = os.popen('grep -vE "HTTP|BINKP|HostName|Blocked|Connect|EVENT" `ls -1hrt '+LOGDIR+'/mis.*.log|tail -1`|tail -n5|head -n4|cut -c -76').readlines()
   lines = os.popen(logFile).readlines()
   lines = map(lambda s: s.strip(), lines)
