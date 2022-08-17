@@ -1,0 +1,85 @@
+from mystic_bbs import *
+from datetime import datetime
+import os, subprocess
+
+now    = datetime.now()
+TEXT   = str(getcfg()['text'])
+DATE   = now.strftime("%a, %b %e %Y, %H:%M")
+
+CFG    = str(getcfg())
+USER   = str(getuser())
+HANDLE = str(getuser()['handle'])
+
+def dispHeader():
+  A = mci2str('AV')
+  V = mci2str('IL')
+  
+  if A == "Yes":
+    AVAIL = "|10YES"
+  else:
+    AVAIL = "|12NO "
+
+  if V == "On":
+    INVIS = "|12NO "
+  else:
+    INVIS = "|10YES"
+
+  gotoxy(2,1);  write("|10"+DATE)
+  gotoxy(35,1); write("|$C15"+HANDLE)
+  gotoxy(57,1); write("|02Avl: "+AVAIL)
+  gotoxy(72,1); write("|02Vis: "+INVIS)
+
+def dispTotals():
+  gotoxy(64,12); write("|08|$l14.|15|TC")
+  
+def dispSysInfo():
+  MEMFREEMB = 0
+  MEMTOTALMB = 0
+  with open('/proc/meminfo') as file:
+    for line in file:
+      if 'MemTotal' in line:
+        MEMTOTALKB = line.split()[1]
+        MEMTOTALMB = int(MEMTOTALKB) / 1024
+      if 'MemFree' in line:
+        MEMFREEKB = line.split()[1]
+        MEMFREEMB = int(MEMFREEKB) / 1024
+  gotoxy(11,13); write("|15"+str(MEMFREEMB)+" MB |08/ |15"+str(MEMTOTALMB)+" MB")
+
+  NUMPROCS = os.popen('nproc').read().strip('\n')
+  LOADAVG  = os.popen('uptime|grep -oE "average:.*"').read().split(':')[1].strip('\n').split(',')
+  UPTIMES  = float(os.popen("cat /proc/uptime|awk '{print $1}'").read().strip('\n'))
+  UPTIMEM  = UPTIMES / 60
+  UPTIMEH  = UPTIMEM / 60
+  UPTIMED  = UPTIMEH / 24
+  PROCESS  = os.popen('ps auxwww|grep -v PID|wc -l').read().strip('\n')
+  gotoxy(11,14); write("|151m "+LOADAVG[0].strip(' ')+" |08/|15 5m "+LOADAVG[1].strip(' ')+" |08/|15 15m "+LOADAVG[2].strip(' '))
+  gotoxy(11,15); write("|15Up: "+str(int(UPTIMED))+"d "+str(int(UPTIMEH) % 24)+"h "+str(int(UPTIMEM) % 60)+"m / Running "+str(int(PROCESS)))
+
+def dispQuickLog(log="mis"):
+  LOGDIR = "/mystic/logs"
+
+  if log.lower() == "mis":
+    logFile = 'grep -vE "HTTP|BINKP|HostName|Blocked|Connect|EVENT" `ls -1hrt '+LOGDIR+'/mis.*.log|tail -1`|tail -n5|head -n4|cut -c -76'
+  elif log.lower() == "mutil":
+    logFile = 'tail -n4 '+LOGDIR+'/mutil.latest.log|cut -c -76'
+  else:
+    logFile = 'tail -n4 '+LOGDIR+'/node'+log+'.log|cut -c -76'
+
+  #QUICKLOG = os.popen('grep -aih "logged in$" '+LOGDIR+'/node*.log|sort|tail -n4').read()
+  SY = 19
+  OS = 0
+  #lines = os.popen('grep -aih "logged in$" '+LOGDIR+'/node*.log|sort|tail -n4').readlines()
+  lines = os.popen('grep -vE "HTTP|BINKP|HostName|Blocked|Connect|EVENT" `ls -1hrt '+LOGDIR+'/mis.*.log|tail -1`|tail -n5|head -n4|cut -c -76').readlines()
+  lines = os.popen(logFile).readlines()
+  lines = map(lambda s: s.strip(), lines)
+  for line in lines:
+    gotoxy(3,SY+OS); write("|17|15"+line.ljust(76)+"|16")
+    OS = OS + 1
+
+writeln("|CL")
+menucmd('GD','@0@NONE@'+TEXT+'wfc/main.ans')
+dispHeader()
+dispTotals()
+dispSysInfo()
+dispQuickLog('mis')
+gotoxy(1,24); writeln("|PA")
