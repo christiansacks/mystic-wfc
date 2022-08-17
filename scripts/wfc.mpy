@@ -5,7 +5,6 @@ import os, subprocess
 now    = datetime.now()
 TEXT   = str(getcfg()['text'])
 DATE   = now.strftime("%a, %b %e %Y, %H:%M")
-
 CFG    = str(getcfg())
 USER   = str(getuser())
 HANDLE = str(getuser()['handle'])
@@ -20,7 +19,7 @@ def dispHeader():
     AVAIL = "|12NO "
 
   if V == "On":
-    INVIS = "|12NO "
+    INVIS = "|12 NO"
   else:
     INVIS = "|10YES"
 
@@ -33,17 +32,11 @@ def dispTotals():
   gotoxy(64,12); write("|08|$l14.|15|TC")
   
 def dispSysInfo():
-  MEMFREEMB = 0
-  MEMTOTALMB = 0
-  with open('/proc/meminfo') as file:
-    for line in file:
-      if 'MemTotal' in line:
-        MEMTOTALKB = line.split()[1]
-        MEMTOTALMB = int(MEMTOTALKB) / 1024
-      if 'MemFree' in line:
-        MEMFREEKB = line.split()[1]
-        MEMFREEMB = int(MEMFREEKB) / 1024
-  gotoxy(11,13); write("|15"+str(MEMFREEMB)+" MB |08/ |15"+str(MEMTOTALMB)+" MB")
+  MEMTOTLKB = os.popen("free|grep Mem|awk '{print $2}'").read().strip('\n')
+  MEMUSEDKB = os.popen("free|grep Mem|awk '{print $3}'").read().strip('\n')
+  MEMTOTLMB = int(MEMTOTLKB) / 1024
+  MEMUSEDMB = int(MEMUSEDKB) / 1024
+  gotoxy(11,13); write("|15"+str(MEMUSEDMB)+"MB|08/|15"+str(MEMTOTLMB)+"MB |03used")
 
   NUMPROCS = os.popen('nproc').read().strip('\n')
   LOADAVG  = os.popen('uptime|grep -oE "average:.*"').read().split(':')[1].strip('\n').split(',')
@@ -79,10 +72,13 @@ def dispQuickLog(log="mis"):
     gotoxy(3,SY+OS); write("|17|15"+line.ljust(76)+"|16")
     OS = OS + 1
 
-writeln("|CL")
-menucmd('GD','@0@NONE@'+TEXT+'wfc/main.ans')
-dispHeader()
-dispTotals()
-dispSysInfo()
-dispQuickLog('mis')
+def init():
+  writeln("|CL")
+  menucmd('GD','@0@NONE@'+TEXT+'wfc/main.ans')
+  dispHeader()
+  dispTotals()
+  dispSysInfo()
+  dispQuickLog('mis')
+
+init()
 gotoxy(1,24); writeln("|PA")
