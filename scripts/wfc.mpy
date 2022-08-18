@@ -36,7 +36,7 @@ def dispSysInfo():
   MEMUSEDKB = os.popen("free|grep Mem|awk '{print $3}'").read().strip('\n')
   MEMTOTLMB = int(MEMTOTLKB) / 1024
   MEMUSEDMB = int(MEMUSEDKB) / 1024
-  gotoxy(11,13); write("|15"+str(MEMUSEDMB)+"MB|08/|15"+str(MEMTOTLMB)+"MB |03used")
+  gotoxy(10,13); write("|15"+str(MEMUSEDMB)+"MB|08/|15"+str(MEMTOTLMB)+"MB |03used")
 
   NUMPROCS = os.popen('nproc').read().strip('\n')
   LOADAVG  = os.popen('uptime|grep -oE "average:.*"').read().split(':')[1].strip('\n').split(',')
@@ -45,8 +45,8 @@ def dispSysInfo():
   UPTIMEH  = UPTIMEM / 60
   UPTIMED  = UPTIMEH / 24
   PROCESS  = os.popen('ps auxwww|grep -v PID|wc -l').read().strip('\n')
-  gotoxy(11,14); write("|151m "+LOADAVG[0].strip(' ')+" |08/|15 5m "+LOADAVG[1].strip(' ')+" |08/|15 15m "+LOADAVG[2].strip(' '))
-  gotoxy(11,15); write("|15Up: "+str(int(UPTIMED))+"d "+str(int(UPTIMEH) % 24)+"h "+str(int(UPTIMEM) % 60)+"m / Running "+str(int(PROCESS)))
+  gotoxy(10,14); write("|151m "+LOADAVG[0].strip(' ')+" |08/|15 5m "+LOADAVG[1].strip(' ')+" |08/|15 15m "+LOADAVG[2].strip(' '))
+  gotoxy(10,15); write("|15Up: "+str(int(UPTIMED))+"d "+str(int(UPTIMEH) % 24)+"h "+str(int(UPTIMEM) % 60)+"m / Running "+str(int(PROCESS)))
 
 def dispQuickLog(log="mis"):
   LOGDIR = "/mystic/logs"
